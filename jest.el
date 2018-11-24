@@ -108,20 +108,29 @@ When non-nil only ‘test_foo()’ will match, and nothing else."
   "Show popup for running jest."
   'jest
   :switches
-  '((?c "colors" "--colors" t)
+  '((?b "bail" "--bail")
+    (?c "colors" "--colors" t)
+    (?C "coverage" "--coverage")
     (?d "run doctests" "--doctest-modules")
-    (?f "failed first" "--failed-first")
-    (?l "show locals" "--showlocals")
-    (?p "debug on error" "--pdb")
-    (?q "quiet" "--quiet")
-    (?s "do not capture output" "--capture=no")
-    (?t "do not cut tracebacks" "--full-trace")
+    (?D "debug jest config" "--debug")
+    (?e "expand" "--expand")
+    (?f "force exit" "--forceExit")
+    (?l "last commit" "--lastCommit")
+    ;; (?p "debug on error" "--pdb")
+    (?o "only changed" "--onlyChanged")
+    (?s "silent" "--silent")
+    ;; (?s "do not capture output" "--capture=no")
+    ;; (?t "do not cut tracebacks" "--full-trace")
     (?v "verbose" "--verbose")
-    (?x "exit after first failure" "--exitfirst"))
+    ;;--watch
+    (?w "watch" "--watch")
+    (?W "watch all" "--watchAll"))
   :options
-  '((?k "only names matching expression" "-k")
-    (?m "only marks matching expression" "-m")
-    (?t "traceback style" "--tb=" jest--choose-traceback-style)
+  '((?c "config file" "--config=")
+    (?k "only names matching expression" "-t")
+    ;; (?m "only marks matching expression" "-m")
+    (?o "output file" "--outputFile=")
+    ;; (?t "traceback style" "--tb=" jest--choose-traceback-style)
     (?x "exit after N failures or errors" "--maxfail="))
   :actions
   '("Run tests"
