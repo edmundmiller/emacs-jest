@@ -1,6 +1,43 @@
 ;;; jest.el --- helpers to run jest -*- lexical-binding: t; -*-
+;; Author: Edmund Miller <edmund.a.miller@gmail.com>
+;; URL:  https://github.com/emiller/emacs-jest/
+;; Version: 0.1.0
+;; Keywords: jest, javascript, testing
+;; Package-Requires: ((emacs "24.4"))
+
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; GNU Emacs is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+
+;; This package provides helpers to run jest.
+;;
+;; The main command is jest-popup, which will show a
+;; dispatcher menu, making it easy to change various options and
+;; switches, and then run jest using one of the actions.
+;; - jest (run all tests)
+;; - jest-file (current file)
+;; - jest-file-dwim (‘do what i mean’ for current file)
+;; - jest-function (current function)
+;; - jest-function-dwim (‘do what i mean’ for current function)
+;; - jest-last-failed (rerun previous failures)
+;; - jest-repeat (repeat last invocation)
+;;
+;; A prefix argument causes the generated command line to be offered
+;; for editing, and various customization options influence how some
+;; of the commands work. See the README.org for detailed information.
 
 ;;; Code:
 (require 'comint)
