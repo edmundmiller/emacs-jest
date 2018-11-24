@@ -1,6 +1,6 @@
 ;;; jest.el --- helpers to run jest -*- lexical-binding: t; -*-
 ;; Author: Edmund Miller <edmund.a.miller@gmail.com>
-;; URL:  https://github.com/emiller/emacs-jest/
+;; URL:  https://github.com/emiller88/emacs-jest/
 ;; Version: 0.1.0
 ;; Keywords: jest, javascript, testing
 ;; Package-Requires: ((emacs "24.4"))
