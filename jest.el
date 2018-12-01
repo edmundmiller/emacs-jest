@@ -4,7 +4,8 @@
 ;; Version: 0.1.0
 ;; Keywords: jest, javascript, testing
 ;; Package-Requires: ((emacs "24.4") (dash "2.12.0") (dash-functional "2.12.0")
-;; (magit-popup "2.12.0") (projectile "0.14.0") (s "1.12.0") (js2-mode "20180301"))
+;; (magit-popup "2.12.0") (projectile "0.14.0") (s "1.12.0") (js2-mode "20180301")
+;; (cl-lib "0.6.1"))
 
 ;; This file is part of GNU Emacs.
 
