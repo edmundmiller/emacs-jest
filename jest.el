@@ -539,11 +539,5 @@ Example: ‘MyABCThingy.__repr__’ becomes ‘test_my_abc_thingy_repr’."
           (save-buffer)))))
    (t nil)))
 
-
-;; third party integration
-
-(with-eval-after-load 'direnv
-  (defvar direnv-non-file-modes)
-  (add-to-list 'direnv-non-file-modes 'jest-mode))
 (provide 'jest)
 ;;; jest.el ends here
