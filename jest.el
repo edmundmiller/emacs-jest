@@ -323,7 +323,7 @@ With a prefix ARG, allow editing."
 (define-derived-mode jest-mode
   comint-mode "jest"
   "Major mode for jest sessions (derived from comint-mode)."
-  (compilation-setup))
+  (compilation-setup t))
 
 (cl-defun jest--run (&key args file func edit)
   "Run jest for the given arguments."
