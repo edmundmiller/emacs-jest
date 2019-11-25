@@ -317,6 +317,9 @@ With a prefix ARG, allow editing."
 
 ;; internal helpers
 
+(fmakunbound 'jest-mode)
+(makunbound 'jest-mode)
+
 (define-derived-mode jest-mode
   comint-mode "jest"
   "Major mode for jest sessions (derived from comint-mode)."
