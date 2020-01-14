@@ -165,6 +165,8 @@ When non-nil only ‘test_foo()’ will match, and nothing else."
   :options
   '((?c "config file" "--config=")
     (?k "only names matching expression" "-t")
+    (?p "only files matching expression" "--testPathPattern ")
+    (?P "only files not matching expression" "--testPathIgnorePatterns ")
     ;; (?m "only marks matching expression" "-m")
     (?o "output file" "--outputFile=")
     ;; (?t "traceback style" "--tb=" jest--choose-traceback-style)
@@ -318,6 +320,8 @@ With a prefix ARG, allow editing."
 (define-derived-mode jest-mode
   comint-mode "jest"
   "Major mode for jest sessions (derived from comint-mode)."
+  (make-variable-buffer-local 'comint-prompt-read-only)
+  (setq-default comint-prompt-read-only nil)
   (compilation-setup))
 
 (cl-defun jest--run (&key args file func edit)
