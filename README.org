@@ -32,6 +32,18 @@ A prefix argument causes the generated command line to be offered
 for editing, and various customization options influence how some
 of the commands work. See the README.org for detailed information.
 
+* Jest Minor Mode
+Jest minor mode binds compilation-related commands such as =compile-command= and
+=recompile-command= to Jest commands, so that, for example =C-c <RET>=
+(=compile=) runs =jest-popup= and =C-c C-<RET>= (=recompile=) runs
+=jest-repeat=. The commands to run are configurable.
+
+#+begin_src el
+(use-package jest
+  :after (js2-mode)
+  :hook (js2-mode . jest-minor-mode))
+#+end_src
+
 * Jest Popup
 #+BEGIN_SRC
 Switches

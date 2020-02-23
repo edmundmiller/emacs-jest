@@ -317,12 +317,15 @@ With a prefix ARG, allow editing."
 
 ;; internal helpers
 
+(fmakunbound 'jest-mode)
+(makunbound 'jest-mode)
+
 (define-derived-mode jest-mode
   comint-mode "jest"
   "Major mode for jest sessions (derived from comint-mode)."
   (make-variable-buffer-local 'comint-prompt-read-only)
   (setq-default comint-prompt-read-only nil)
-  (compilation-setup))
+  (compilation-setup t))
 
 (cl-defun jest--run (&key args file func edit)
   "Run jest for the given arguments."
@@ -540,6 +543,27 @@ Example: ‘MyABCThingy.__repr__’ becomes ‘test_my_abc_thingy_repr’."
         (with-current-buffer it
           (save-buffer)))))
    (t nil)))
+
+(defcustom jest-compile-command 'jest-popup
+  "Command to run when compile and friends are called."
+  :group 'jest
+  :type 'function)
+
+(defcustom jest-repeat-compile-command 'jest-repeat
+  "Command to run when recompile and friends are called."
+  :group 'jest
+  :type 'function)
+
+;;;###autoload
+(define-minor-mode jest-minor-mode
+  "Minor mode to run jest-mode commands for compile and friends."
+  :lighter " Jest Minor"
+  :keymap (let ((jest-minor-mode-keymap (make-sparse-keymap)))
+            (define-key jest-minor-mode-keymap [remap compile] jest-compile-command)
+            (define-key jest-minor-mode-keymap [remap recompile] jest-repeat-compile-command)
+            (define-key jest-minor-mode-keymap [remap projectile-test-project] jest-compile-command)
+            (define-key jest-minor-mode-keymap (kbd "C-c ;") 'jest-file-dwim)
+            jest-minor-mode-keymap))
 
 (provide 'jest)
 ;;; jest.el ends here
