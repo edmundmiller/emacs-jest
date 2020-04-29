@@ -30,8 +30,6 @@
 ;; - jest (run all tests)
 ;; - jest-file (current file)
 ;; - jest-file-dwim (‘do what i mean’ for current file)
-;; - jest-function (current function)
-;; - jest-function-dwim (‘do what i mean’ for current function)
 ;; - jest-last-failed (rerun previous failures)
 ;; - jest-repeat (repeat last invocation)
 ;;
@@ -178,8 +176,6 @@ When non-nil only ‘test_foo()’ will match, and nothing else."
     "Run tests for current context"
     (?f "Test file" jest-file-dwim)
     (?F "Test this file  " jest-file)
-    (?d "Test def/class" jest-function-dwim)
-    (?D "This def/class" jest-function)
     "Repeat tests"
     (?r "Repeat last test run" jest-repeat))
   :max-action-columns 2
@@ -224,65 +220,6 @@ With a prefix argument, allow editing."
     (buffer-file-name)
     (jest-arguments)))
   (jest-file (jest--sensible-test-file file) args))
-
-;;;###autoload
-(defun jest-function (file func args)
-  "Run jest on FILE with FUNC (or class).
-
-Additional ARGS are passed along to jest.
-With a prefix argument, allow editing."
-  (interactive
-   (list
-    (buffer-file-name)
-    (jest--current-defun)
-    (jest-arguments)))
-  (jest--run
-   :args args
-   :file file
-   :func func
-   :edit current-prefix-arg))
-
-;;;###autoload
-(defun jest-function-dwim (file func args)
-  "Run jest on FILE with FUNC (or class).
-
-When run interactively, this tries to work sensibly using
-the current file and function around point.
-
-Additional ARGS are passed along to jest.
-With a prefix argument, allow editing."
-  (interactive
-   (list
-    (buffer-file-name)
-    (jest--current-defun)
-    (jest-arguments)))
-  (unless (jest--test-file-p file)
-    (setq
-     file (jest--sensible-test-file file)
-     func (jest--make-test-name func))
-    (unless jest-strict-test-name-matching
-      (let ((k-option (-first (-partial #'s-prefix-p "-k") args)))
-        (when k-option
-          ;; try to use the existing ‘-k’ option in a sensible way
-          (setq args (-remove-item k-option args)
-                k-option (-->
-                          k-option
-                          (s-chop-prefix "-k" it)
-                          (s-trim it)
-                          (if (s-contains-p " " it) (format "(%s)" it) it))))
-        (setq args (-snoc
-                    args
-                    (jest--shell-quote file)
-                    (if k-option
-                        (format "-k %s and %s" func k-option)
-                      (format "-k %s" func)))
-              file nil
-              func nil))))
-  (jest--run
-   :args args
-   :file file
-   :func func
-   :edit current-prefix-arg))
 
 ;;;###autoload
 (defun jest-last-failed (&optional args)
@@ -386,11 +323,6 @@ With a prefix ARG, allow editing."
       (make-local-variable 'jest-arguments)
       (setq jest--current-command command
             jest-arguments popup-arguments)
-      (when jest-pdb-track
-        (add-hook
-         'comint-output-filter-functions
-         'python-pdbtrack-comint-output-filter-function
-         nil t))
       (run-hooks 'jest-setup-hook)
       (make-comint-in-buffer "jest" buffer "sh" nil "-c" command)
       (run-hooks 'jest-started-hook)
@@ -452,22 +384,6 @@ When present ON-REPLACEMENT is substituted, else OFF-REPLACEMENT is appended."
   (completing-read
    prompt '("long" "short" "line" "native" "no") nil t))
 
-
-;; python helpers
-
-(defun jest--current-defun ()
-  "Detect the current function/class (if any)."
-  (save-excursion
-    (let ((name (python-info-current-defun)))
-      (unless name
-        ;; jumping seems to make it work on empty lines.
-        ;; todo: this could perhaps be improved.
-        (python-nav-beginning-of-defun)
-        (python-nav-forward-statement)
-        (setq name (python-info-current-defun)))
-      (unless name
-        (user-error "No class/function found"))
-      name)))
 
 (defun jest--make-test-name (func)
   "Turn function name FUNC into a name (hopefully) matching its test name.
