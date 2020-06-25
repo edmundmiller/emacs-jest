@@ -46,6 +46,7 @@
 (require 'dash-functional)
 (require 'magit-popup)
 (require 'projectile)
+(require 's)
 
 (defgroup jest nil
   "jest integration"
