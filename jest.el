@@ -177,6 +177,7 @@ When non-nil only ‘test_foo()’ will match, and nothing else."
     "Run tests for current context"
     (?f "Test file" jest-file-dwim)
     (?F "Test this file  " jest-file)
+    (?d "Test function " jest-function)
     "Repeat tests"
     (?r "Repeat last test run" jest-repeat))
   :max-action-columns 2
@@ -222,6 +223,20 @@ With a prefix argument, allow editing."
     (jest-arguments)))
   (jest-file (jest--sensible-test-file file) args))
 
+
+;;;###autoload
+(defun jest-function (file testname &optional args)
+  "Run jest on the test function where pointer is located.
+
+When pointer is not inside a test function jest is run on the whole file."
+  (interactive
+   (list (buffer-file-name) (jest--current-testname) (jest-arguments)))
+  (jest--run
+   :args args
+   :file file
+   :testname testname))
+
+
 ;;;###autoload
 (defun jest-last-failed (&optional args)
   "Run jest, only executing previous test failures.
@@ -265,26 +280,24 @@ With a prefix ARG, allow editing."
   (setq-default comint-prompt-read-only nil)
   (compilation-setup t))
 
-(cl-defun jest--run (&key args file func edit)
+(cl-defun jest--run (&key args file testname edit)
   "Run jest for the given arguments."
   (let ((popup-arguments args))
     (setq args (jest--transform-arguments args))
     (when (and file (file-name-absolute-p file))
       (setq file (jest--relative-file-name file)))
-    (when func
-      (setq func (s-replace "." "::" func)))
-    (let ((command)
-          (thing (cond
-                  ((and file func) (format "%s::%s" file func))
-                  (file file))))
-      (when thing
-        (setq args (-snoc args (jest--shell-quote thing))))
-      (setq args (cons jest-executable args)
-            command (s-join " " args))
+
+    (when file
+      (setq args (-snoc args (jest--shell-quote file))))
+    (when testname
+      (setq args (-snoc args "--testNamePattern" (jest--shell-quote testname))))
+
+      (setq args (cons jest-executable args) command (s-join " " args))
+
       (jest--run-command
        :command command
        :popup-arguments popup-arguments
-       :edit edit))))
+       :edit edit)))
 
 (cl-defun jest--run-command (&key command popup-arguments edit)
   "Run a jest command line."
@@ -460,6 +473,50 @@ Example: ‘MyABCThingy.__repr__’ becomes ‘test_my_abc_thingy_repr’."
         (with-current-buffer it
           (save-buffer)))))
    (t nil)))
+
+
+;; functions to inspect/navigate the javascript source code
+(defun jest--current-testname ()
+  "Return the testname where pointer is located.
+
+Testname is defined by enclosing ~describe~ calls and ~it~/~test~ calls."
+  (let* ((calls (jest--list-named-calls-upwards))
+         (testname ""))
+    (dolist (call calls)
+      ;; call is the node for the function, function name must be extracted
+      ;; from its target node
+      (let ((funcname (js2-name-node-name (js2-call-node-target call))))
+        (when (member funcname '("it" "test" "describe"))
+          (let ((funcparam (jest--function-first-param-string call)))
+            (setq testname (format "%s %s" funcparam testname))))))
+    (unless (string= testname "") (string-trim testname))))
+
+
+
+(defun jest--list-named-calls-upwards ()
+  "List functions call nodes where function has a name.
+
+This goes from pointer position upwards."
+  (save-excursion
+    ;; enter the test function if the point is before it
+    ;; separated only by whitespace, e.g.
+    (skip-chars-forward "[:blank:]")
+    (let* ((nodes ())
+           (node (js2-node-at-point)))
+      (while (not (js2-ast-root-p node))
+        (when (js2-call-node-p node)
+          (let ((target (js2-call-node-target node)))
+            (when (js2-name-node-p target)
+              (setq nodes (append nodes (list node))))))
+        (setq node (js2-node-parent node)))
+      nodes)))
+
+(defun jest--function-first-param-string (node)
+  "Get the first param from the function call"
+  (let ((first-param (car (js2-call-node-args node))))
+    (when (js2-string-node-p first-param)
+      (js2-string-node-value first-param))))
+;;
 
 (defcustom jest-compile-command 'jest-popup
   "Command to run when compile and friends are called."
