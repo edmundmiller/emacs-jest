@@ -531,7 +531,7 @@ This goes from pointer position upwards."
 ;;;###autoload
 (define-minor-mode jest-minor-mode
   "Minor mode to run jest-mode commands for compile and friends."
-  :lighter " Jest Minor"
+  :lighter " Jest"
   :keymap (let ((jest-minor-mode-keymap (make-sparse-keymap)))
             (define-key jest-minor-mode-keymap [remap compile] jest-compile-command)
             (define-key jest-minor-mode-keymap [remap recompile] jest-repeat-compile-command)
