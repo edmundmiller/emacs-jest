@@ -19,7 +19,9 @@
   (should (equal t (jest--check-bracket-pair ?\( ?\)))))
 
 (ert-deftest jest-test--remove-folded-range ()
-  (should (equal "test text" (jest--remove-folded-range "test text"))))
+  (should (equal "test text" (jest--remove-folded-range "test text")))
+  (should (equal "test ()" (jest--remove-folded-range "test ('text')")))
+  (should (equal "test ()" (jest--remove-folded-range "test (text)"))))
 
 
 (ert-deftest jest-test--remove-text-in-bracket ()

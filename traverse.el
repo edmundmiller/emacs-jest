@@ -89,6 +89,18 @@
             (setq stack (cdr stack)))))))
     (jest--remove-ranges text list-to-del)))
 
+
+(defun jest---get-first (desc-names text)
+  (string-match "describe\([\'\"]\\(.*\\)[\'\"]" text)
+  (if-let ((describe-name (match-string 1 text)))
+      (jest---get-first describe-name "")
+    desc-names))
+
+(defun jest--get-describe-names-at-point ()
+  "Get all merged names in hierarchical describe til current position"
+  )
+
+
 (defun jest--get-describe-name-at-point ()
   "Get all merged names in hierarchical describe til current position"
   (let ((text (jest--remove-folded-range (jest--get-buffer-to-point))))
