@@ -7,7 +7,16 @@
 
 (ert-deftest jest-test--check-quotes ()
   (should (equal nil (jest--check-char-quote ?t)))
-  (should (equal t (jest--check-char-quote ?')))
+  (should (equal t (jest--check-char-quote ?'))))
+
+(ert-deftest jest-test--check-in-quotes ()
+  (should (equal nil (jest--is-in-quotes ?')))
+  (should (equal t (jest--is-in-quotes '(?' 1 2)))))
+
+(ert-deftest jest-test--check-bracket-pair ()
+  (should (equal nil (jest--check-bracket-pair ?\( ?a)))
+  (should (equal nil (jest--check-bracket-pair ?\( ?})))
+  (should (equal t (jest--check-bracket-pair ?\( ?\)))))
 
 (ert-deftest jest-test--remove-folded-range ()
   (should (equal "test text" (jest--remove-folded-range "test text"))))
