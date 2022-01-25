@@ -1,5 +1,6 @@
 (defconst jest--brackets '((?( ?)) (?{ ?}) (?[ ?]) (?< ?>)))
 (defconst jest--quotes '(?\' ?\" ?\`))
+(defconst jest--blank-line-begin "^[\t\s]*")
 
 (defun jest--get-buffer-to-point () 
   (buffer-substring 1 (+ (point) 1)))
@@ -90,23 +91,26 @@
     (jest--remove-ranges text list-to-del)))
 
 
-(defun jest---get-first (desc-names text)
-  (string-match "describe\([\'\"]\\(.*\\)[\'\"]" text)
-  (if-let ((describe-name (match-string 1 text)))
-      (jest---get-first describe-name "")
+(defun jest--current-describe-name (desc-names text)
+  (if (or (string-match (concat jest--blank-line-begin "describe\(\'\\(.*?\\)\'") text)
+          (string-match (concat jest--blank-line-begin "describe\(\"\\(.*?\\)\"") text))
+      (let ((describe-name (match-string 1 text)))
+        (jest--current-describe-name (if (> (length desc-names) 0)
+                              (concat desc-names " " describe-name)
+                            describe-name)
+                          (substring text (match-beginning 1))))
     desc-names))
 
-(defun jest--get-describe-names-at-point ()
-  "Get all merged names in hierarchical describe til current position"
-  )
+(defun jest--current-test-fun-param (text)
+  (when (or (string-match (concat jest--blank-line-begin "\\(test\\|it\\)\(\'\\(.*?\\)\'") text)
+          (string-match (concat jest--blank-line-begin "\\(test\\|it\\)\(\"\\(.*?\\)\"") text))
+      (match-string 2 text)))
 
+(defun jest--current-test-name (text)
+  (let ((refined (jest--remove-folded-range text)))
+    (let ((desc-names (jest--current-describe-name "" refined)))
+      (concat (when (> (length desc-names) 0)
+                (concat desc-names " "))
+              (jest--current-test-fun-param refined)))))
 
-(defun jest--get-describe-name-at-point ()
-  "Get all merged names in hierarchical describe til current position"
-  (let ((text (jest--remove-folded-range (jest--get-buffer-to-point))))
-    (string-match "describe\(\\(.*\\)," text)
-    (when-let (describe-name (match-string 1 text))
-      (substring describe-name 1 -1))
-    ))
-
-(provide 'traverse.el)
+(provide 'jest-traversal.el)
