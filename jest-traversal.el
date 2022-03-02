@@ -3,7 +3,7 @@
 (defconst jest--blank-line-begin "^[\t\s]*")
 
 (defun jest--get-buffer-to-point () 
-  (buffer-substring 1 (+ (point) 1)))
+  (buffer-substring 1 (line-end-position)))
 
 (defun jest--check-template (character substitutes cb)
   (let ((ele substitutes) (result nil))
@@ -43,17 +43,20 @@
   "compare the last input of list with new-one
   If collapse remove last one and push
   If not, just push"
-  (if (or (not (car list-to-del))
-          (< (car (cdr (car list-to-del))) (car new-one)))
-      (push new-one list-to-del)
-    (push new-one (cdr list-to-del))))
+  (if (and (car list-to-del) (>= (car (cdr (car list-to-del))) (car new-one)))
+      (let ()
+        (jest--merge-collapsed-range (cdr list-to-del) new-one))
+    (if (null list-to-del)
+        (list new-one)
+      (push new-one list-to-del))))
 
 (defun jest--remove-ranges (text list-to-del)
-  (let ((edited text))
-    (dolist (cursor list-to-del)
-      (setq edited (concat (substring edited 0 (+ 1 (car cursor)))
-                        (substring edited (car (cdr cursor))))))
-    edited))
+  (if (> (length list-to-del) 0)
+      (let ()
+      (jest--remove-ranges (concat (substring text 0 (+ 1 (car (car list-to-del))))
+                                   (substring text (car (cdr (car list-to-del)))))
+                           (cdr list-to-del)))
+    text))
 
 ;; todo remove text closed with pairs but need to remain complete string
 ;; 1 : When meet Quotes.
@@ -106,11 +109,12 @@
           (string-match (concat jest--blank-line-begin "\\(test\\|it\\)\(\"\\(.*?\\)\"") text))
       (match-string 2 text)))
 
-(defun jest--current-test-name (text)
-  (let ((refined (jest--remove-folded-range text)))
-    (let ((desc-names (jest--current-describe-name "" refined)))
-      (concat (when (> (length desc-names) 0)
-                (concat desc-names " "))
-              (jest--current-test-fun-param refined)))))
+(defun jest--current-test-name ()
+  (let ((text (jest--get-buffer-to-point)))
+    (let ((refined (jest--remove-folded-range text)))
+      (let ((desc-names (jest--current-describe-name "" refined)))
+        (concat (when (> (length desc-names) 0)
+                  (concat desc-names " "))
+                (jest--current-test-fun-param refined))))))
 
-(provide 'jest-traversal.el)
+(provide 'jest-traversal)
