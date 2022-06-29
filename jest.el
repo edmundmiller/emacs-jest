@@ -46,6 +46,7 @@
 (require 'magit-popup)
 (require 'projectile)
 (require 's)
+(require 'jest-traversal)
 
 (defgroup jest nil
   "jest integration"
@@ -229,7 +230,7 @@ With a prefix argument, allow editing."
 
 When pointer is not inside a test function jest is run on the whole file."
   (interactive
-   (list (buffer-file-name) (jest--current-testname) (jest-arguments)))
+   (list (buffer-file-name) (jest--current-test-name) (jest-arguments)))
   (jest--run
    :args args
    :file file
