@@ -541,6 +541,20 @@ This goes from pointer position upwards."
   (let ((first-param (car (js2-call-node-args node))))
     (when (js2-string-node-p first-param)
       (js2-string-node-value first-param))))
+
+(defun jest-clear-buffer-after-test-end (inserted-string)
+  (let
+  ((test-end-regex  ".*?Test Suites:.+\nTests:  .+\nSnapshots: .+\nTime:  .+\nRan all test suites.+\n.*?"))  
+    (when (and (s-contains? "*jest*"
+                            (buffer-name))
+               (s-matches? test-end-regex (buffer-string)))
+      (beginning-of-buffer)
+      (comint-clear-buffer))
+    inserted-string))
+
+
+(add-hook 'comint-preoutput-filter-functions #'jest-clear-buffer-after-test-end)
+
 ;;
 
 (defcustom jest-compile-command 'jest-popup
