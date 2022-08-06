@@ -282,7 +282,8 @@ With a prefix ARG, allow editing."
 
 (cl-defun jest--run (&key args file testname edit)
   "Run jest for the given arguments."
-  (let ((popup-arguments args))
+  (let ((popup-arguments args)
+	command)
     (setq args (jest--transform-arguments args))
     (when (and file (file-name-absolute-p file))
       (setq file (jest--relative-file-name file)))
@@ -444,8 +445,8 @@ If FILE is not found in DIRECTORY, the parent of DIRECTORY will be searched."
   (gethash "name" (jest--read-package-json buffer-file-name)))
 
 (defun jest--project-root ()
-  (interactive)
   "Find the project root directory."
+  (interactive)
   (file-name-directory (jest--find-package-json buffer-file-name)))
 
 (defun jest--relative-file-name (file)
