@@ -579,5 +579,34 @@ This goes from pointer position upwards."
             (define-key jest-minor-mode-keymap (kbd "C-c ;") 'jest-file-dwim)
             jest-minor-mode-keymap))
 
+
+(unintern 'jest-function-compilation-error-regexp)
+(unintern 'jest-file-compilation-error-regexp)
+(defvar jest-function-compilation-error-regexp
+  (list 'jest-function "^ *at [_a-zA-Z.0-9]+ (\\([^:]+\\):\\([0-9]+\\):[0-9]+)" 1 2))
+(defvar jest-file-compilation-error-regexp
+  (list 'jest-file "at \\([^:(]+\\):\\([0-9]+\\):[0-9]+" 1 2))
+
+
+(defun jest-load-compilation-errors ()
+  (message "local jest-compilation-error-regexp" jest-compilation-error-regexp)
+  (setq compilation-error-regexp-alist-alist
+        (cl-remove-if (lambda (x) (member (car x) '(jest jest-file jest-function)))
+                      compilation-error-regexp-alist-alist))
+
+  (add-to-list 'compilation-error-regexp-alist-alist jest-file-compilation-error-regexp)
+  (add-to-list 'compilation-error-regexp-alist-alist jest-function-compilation-error-regexp)
+
+   (setq compilation-error-regexp-alist
+            (cl-remove-if (lambda (x) (or (eq x 'jest)
+                                        (eq x 'jest-file)
+                                        (eq x 'jest-function)))
+                        compilation-error-regexp-alist))
+   (add-to-list 'compilation-error-regexp-alist 'jest-file)
+   (add-to-list 'compilation-error-regexp-alist 'jest-function))
+
+
+
+
 (provide 'jest)
 ;;; jest.el ends here
